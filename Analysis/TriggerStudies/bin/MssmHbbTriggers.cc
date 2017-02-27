@@ -27,6 +27,7 @@ using namespace analysis::tools;
 
 
 std::map<std::string, TH1F*> h1_;
+std::map<std::string, TH1F*> h2_; // for bias study
 TGraphAsymmErrors * g_eff_;
 TGraphErrors * g_rates_;
 std::string inputList_;
@@ -51,18 +52,37 @@ int main(int argc, char * argv[])
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
 
    xsections_ = CrossSections();
-   
+   //Hadronic   
    triggers_.push_back("ZeroBias");
    triggers_.push_back("L1_DoubleJetC100");
    triggers_.push_back("L1_DoubleJetC100Eta2p3");
    triggers_.push_back("L1_DoubleJetC100Eta2p3_dEtaMax1p6");
+   
    triggers_.push_back("HLT_LowMassAllHad");
    triggers_.push_back("HLT_LowMassAllHad2017");
+ 
+   //Semileptonic
    triggers_.push_back("L1_SingleMu3");
-   
+   triggers_.push_back("L1_SingleJet20");
+   triggers_.push_back("L1_DoubleJet32Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+   triggers_.push_back("L1_DoubleJet34Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");    
+   triggers_.push_back("L1_DoubleJet36Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+   triggers_.push_back("L1_DoubleJet32Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+   triggers_.push_back("L1_DoubleJet34Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");    
+   triggers_.push_back("L1_DoubleJet36Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+   triggers_.push_back("L1_DoubleJet32Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+   triggers_.push_back("L1_DoubleJet34Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");    
+   triggers_.push_back("L1_DoubleJet36Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6");
+
+ 
    for ( size_t i = 0 ; i < triggers_.size(); ++i )
    {
       h1_[triggers_[i]] = new TH1F(Form("h_n%s",triggers_[i].c_str()),"",58,4.5,62.5);
+   }
+
+   for ( size_t i = 8 ; i < triggers_.size(); ++i )
+   {
+      h2_[triggers_[i]] = new TH1F(Form("h_n%s",triggers_[i].c_str()),"",58,4.5,62.5);
    }
    
    // Input files list
@@ -85,13 +105,18 @@ int main(int argc, char * argv[])
    // L1 seeds
    // L1_DoubleJetC100
    jetTriggerObjects_.push_back("hltL1sDoubleJetC100");
-   
+   jetTriggerObjects_.push_back("hltL1sSingleMu3");   // ADDED
+   jetTriggerObjects_.push_back("hltL1sSingleJet20"); // ADDED 
+   jetTriggerObjects_.push_back("hltL1fL1sMu3L1Filtered0"); // NOT USED but in HLT_MU3 path
+
    // HLT modules
    // HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v
    jetTriggerObjects_.push_back("hltDoubleJetsC100");
    jetTriggerObjects_.push_back("hltBTagCaloCSVp014DoubleWithMatching");
    jetTriggerObjects_.push_back("hltDoublePFJetsC100");
    jetTriggerObjects_.push_back("hltDoublePFJetsC100MaxDeta1p6");
+
+
    
    std::string trgobj_path = "MssmHbbTrigger/Events/hltTriggerSummaryAOD/";
    for ( auto & obj : jetTriggerObjects_ )
@@ -145,15 +170,12 @@ int main(int argc, char * argv[])
          h1_["ZeroBias"] -> Fill(nPileup);
       }
       
+      //Hadronic
       if ( L1DoubleJetC100(analysis) )
       {
          h1_["L1_DoubleJetC100"] -> Fill(nPileup);
       }
-      if ( L1SingleMu3(analysis) )
-      {
-         h1_["L1_SingleMu3"] -> Fill(nPileup);
-      }
-      
+               
       if ( L1DoubleJet100Eta2p3(analysis) )
       {
          h1_["L1_DoubleJetC100Eta2p3"] -> Fill(nPileup);
@@ -172,10 +194,73 @@ int main(int argc, char * argv[])
       {
          h1_["HLT_LowMassAllHad2017"] -> Fill(nPileup);
       }
+      
+      //Semileptonic
+      if ( L1SingleMu3(analysis) )
+      {
+         h1_["L1_SingleMu3"] -> Fill(nPileup);
+      }
+
+      if ( L1SingleJet20(analysis) )
+      {
+         h1_["L1_SingleJet20"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet32Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet32Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+     
+     if ( L1DoubleJet32Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet32Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet32Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet32Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet34Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet34Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+     
+     if ( L1DoubleJet34Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet34Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet34Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet34Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet36Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet36Eta2p2_Mu10_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+     
+     if ( L1DoubleJet36Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet36Eta2p2_Mu12_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
+     if ( L1DoubleJet36Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6(analysis) )
+      {
+         h1_["L1_DoubleJet36Eta2p2_Mu8_dEtaMuMax0p4_dPhiMuMax0p4_dEtaDoubleJet1p6"] -> Fill(nPileup);
+      }
+
    }
    
    TFile * f_out = new TFile(Form("mssmhbb_triggers_%s.root",basename_.c_str()),"RECREATE");
    for ( auto & h : h1_ )
+   {
+      std::cout << h.first << std::endl;
+      h.second->Write();
+   }
+
+   for ( auto & h : h2_ )
    {
       std::cout << h.first << std::endl;
       h.second->Write();

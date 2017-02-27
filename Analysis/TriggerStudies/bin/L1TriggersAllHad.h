@@ -36,8 +36,16 @@ bool L1DoubleJet100Eta2p3(Analysis & analysis)
    for ( int j = 0 ; j < l1dijet100->size() ; ++j )
    {
       TriggerObject jet = l1dijet100->at(j);
+ 
+      if (j != l1dijet100->size()-1 )  // last jet has no next jet 
+     {
+      TriggerObject nextjet = l1dijet100->at(j+1);
+      if ( (jet.pt()- nextjet.pt()) < 1e-7 && (jet.phi()- nextjet.phi()) < 1e-7 && (jet.eta()- nextjet.eta()) < 1e-7 ) continue;
+      }
+      
       if ( jet.pt() < 100. || fabs(jet.eta()) > 2.3 ) continue;
       l1dijetc100v2.push_back(jet);
+      cout<< jet.pt() << " " << jet.eta() << endl;
    }
    
    if ( l1dijetc100v2.size() < 2 )                          return false;
@@ -59,6 +67,13 @@ bool L1DoubleJet100Eta2p3_dEtaMax1p6(Analysis & analysis)
    for ( int j = 0 ; j < l1dijet100->size() ; ++j )
    {
       TriggerObject jet = l1dijet100->at(j);
+
+      if (j != l1dijet100->size()-1 )  // last jet has no next jet 
+     {
+      TriggerObject nextjet = l1dijet100->at(j+1);
+      if ( (jet.pt()- nextjet.pt()) < 1e-7 && (jet.phi()- nextjet.phi()) < 1e-7 && (jet.eta()- nextjet.eta()) < 1e-7 ) continue;
+      }
+      
       if ( jet.pt() < 100. || fabs(jet.eta()) > 2.3 ) continue;
       l1dijetc100v2.push_back(jet);
    }
